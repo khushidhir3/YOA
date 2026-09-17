@@ -1,10 +1,9 @@
 services:
   - type: web
     name: taskmanager
-    runtime: java
+    runtime: docker
+    dockerfilePath: ./Dockerfile
     plan: free
-    buildCommand: cd 'YOA(Your own Assistance)' && mvn clean package -DskipTests
-    startCommand: java -jar 'YOA(Your own Assistance)/target/taskmanager-0.0.1-SNAPSHOT.jar'
     healthCheckPath: /actuator/health
     envVars:
       - key: JWT_SECRET
