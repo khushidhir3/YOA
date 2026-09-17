@@ -38,7 +38,7 @@ public class DataLoader implements ApplicationListener<ApplicationReadyEvent> {
         Role userRole = seedRole("ROLE_USER");
 
         User admin = seedUser("admin", "Admin User", "admin@taskmanager.com", "Admin@123", Set.of(adminRole));
-        User khushi = seedUser("khushi", "Khushi", "khushi@example.com", "User@123", Set.of(userRole));
+        User alice = seedUser("alice", "Alice", "alice@example.com", "User@123", Set.of(userRole));
         User bob   = seedUser("bob",   "Bob Smith",    "bob@example.com",   "User@123", Set.of(userRole));
         User carol = seedUser("carol", "Carol White",  "carol@example.com", "User@123", Set.of(userRole));
         User dave  = seedUser("dave",  "Dave Brown",   "dave@example.com",  "User@123", Set.of(userRole));
@@ -49,13 +49,13 @@ public class DataLoader implements ApplicationListener<ApplicationReadyEvent> {
 
         // Sample Tasks (only seed if task table is empty)
         if (taskRepository.count() == 0) {
-            seedTask("Set up CI/CD pipeline",           "Configure GitHub Actions for automated deployments",       Priority.HIGH,     TaskStatus.IN_PROGRESS, LocalDate.now().plusDays(5),   workCat,    admin, khushi);
-            seedTask("Design landing page mockup",      "Create a Figma mockup for the new homepage",               Priority.MEDIUM,   TaskStatus.TODO,         LocalDate.now().plusDays(10),  workCat,    khushi, khushi);
+            seedTask("Set up CI/CD pipeline",           "Configure GitHub Actions for automated deployments",       Priority.HIGH,     TaskStatus.IN_PROGRESS, LocalDate.now().plusDays(5),   workCat,    admin, alice);
+            seedTask("Design landing page mockup",      "Create a Figma mockup for the new homepage",               Priority.MEDIUM,   TaskStatus.TODO,         LocalDate.now().plusDays(10),  workCat,    alice, alice);
             seedTask("Fix login redirect bug",          "After login, users are being redirected to /error",        Priority.CRITICAL, TaskStatus.TODO,         LocalDate.now().minusDays(1),  bugCat,     admin, bob);
             seedTask("Write unit tests for AuthService","Achieve 80%% coverage for the authentication module",      Priority.HIGH,     TaskStatus.TODO,         LocalDate.now().plusDays(3),   workCat,    bob,   bob);
-            seedTask("Update API documentation",        "Sync Swagger docs with latest endpoint changes",           Priority.LOW,      TaskStatus.DONE,         LocalDate.now().minusDays(3),  workCat,    khushi, carol);
+            seedTask("Update API documentation",        "Sync Swagger docs with latest endpoint changes",           Priority.LOW,      TaskStatus.DONE,         LocalDate.now().minusDays(3),  workCat,    alice, carol);
             seedTask("Database backup script",          "Schedule a daily H2 backup to cloud storage",              Priority.MEDIUM,   TaskStatus.TODO,         LocalDate.now().plusDays(7),   workCat,    admin, dave);
-            seedTask("Grocery shopping",                "Buy vegetables, fruits and weekly supplies",               Priority.LOW,      TaskStatus.TODO,         LocalDate.now().plusDays(1),   personalCat,khushi, khushi);
+            seedTask("Grocery shopping",                "Buy vegetables, fruits and weekly supplies",               Priority.LOW,      TaskStatus.TODO,         LocalDate.now().plusDays(1),   personalCat,alice, alice);
             seedTask("Performance profiling",           "Identify and fix N+1 queries in the task list endpoint",   Priority.HIGH,     TaskStatus.IN_PROGRESS,  LocalDate.now().plusDays(4),   bugCat,     bob,   bob);
             seedTask("Onboard new team members",        "Prepare onboarding docs and walkthrough sessions",         Priority.MEDIUM,   TaskStatus.TODO,         LocalDate.now().plusDays(14),  workCat,    admin, carol);
             seedTask("Release v1.0",                    "Final QA and production deployment",                       Priority.CRITICAL, TaskStatus.TODO,         LocalDate.now().plusDays(21),  workCat,    admin, admin);

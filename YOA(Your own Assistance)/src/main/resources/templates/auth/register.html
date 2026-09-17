@@ -16,6 +16,12 @@
         </div>
 
         <div th:if="${error}" class="alert alert-danger">✗ <span th:text="${error}"></span></div>
+        <div th:if="${#fields.hasAnyErrors()}" class="alert alert-danger">
+            ✗ Please fix the errors below:
+            <ul style="margin-top:4px; margin-bottom:0; padding-left:20px;">
+                <li th:each="err : ${#fields.errors('*')}" th:text="${err}"></li>
+            </ul>
+        </div>
 
         <form th:action="@{/auth/register}" method="post" th:object="${registerRequest}">
             <div class="form-grid-2">
