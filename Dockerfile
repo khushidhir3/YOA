@@ -13,8 +13,8 @@ FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 
 # Copy the built JAR file from the build stage
-# Note: we use globbing (*) so we don't have to quote the directory if it's tricky, but quotes should work.
-COPY --from=build "/app/YOA(Your own Assistance)/target/taskmanager-0.0.1-SNAPSHOT.jar" /app/taskmanager.jar
+# Copy the built JAR file from the build stage using JSON array format to safely handle spaces
+COPY --from=build ["/app/YOA(Your own Assistance)/target/taskmanager-0.0.1-SNAPSHOT.jar", "/app/taskmanager.jar"]
 
 # Expose port 8080
 EXPOSE 8080
