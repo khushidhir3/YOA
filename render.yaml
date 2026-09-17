@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: taskmanager
+    runtime: java
+    plan: free
+    buildCommand: cd Lpu-Application && mvn clean package -DskipTests
+    startCommand: java -jar Lpu-Application/target/taskmanager-0.0.1-SNAPSHOT.jar
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: JWT_SECRET
+        generateValue: true
+      - key: H2_FILE_PATH
+        value: /data/taskmanagerdb
+      - key: H2_CONSOLE_ENABLED
+        value: "false"
+      - key: PORT
+        value: "8080"
