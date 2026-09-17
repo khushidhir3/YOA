@@ -1,7 +1,7 @@
 services:
   - type: web
     name: taskmanager
-    runtime: docker
+    env: docker
     dockerfilePath: ./Dockerfile
     plan: free
     healthCheckPath: /actuator/health
