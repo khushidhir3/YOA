@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${editMode} ? 'Edit Category — TaskFlow' : 'New Category — TaskFlow'">Category Form</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}"/>
+</head>
+<body>
+<div class="app-layout">
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <main class="main-content">
+        <div th:replace="~{fragments/alerts :: alerts}"></div>
+
+        <div class="page-header">
+            <div>
+                <a href="/categories" class="btn btn-secondary btn-sm" style="margin-bottom:12px;">← Back</a>
+                <h1 class="page-title" th:text="${editMode} ? 'Edit Category' : 'New Category'">Category</h1>
+            </div>
+        </div>
+
+        <div class="page-body">
+            <div class="card" style="max-width:480px;">
+                <form th:action="${editMode} ? '/categories/' + ${categoryId} + '/edit' : '/categories/new'"
+                      method="post" th:object="${categoryRequest}">
+
+                    <div class="form-group">
+                        <label class="form-label" for="name">Category Name *</label>
+                        <input type="text" id="name" name="name" class="form-control"
+                               th:value="*{name}" placeholder="e.g. Work, Personal, Bugs" required maxlength="80"/>
+                        <div th:if="${#fields.hasErrors('name')}" class="form-error" th:errors="*{name}"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Color</label>
+                        <div class="flex gap-3 items-center">
+                            <input type="color" id="colorPicker" th:value="*{color}" style="width:56px; height:44px;"/>
+                            <input type="text" id="colorText" name="color" class="form-control"
+                                   th:value="*{color}" placeholder="#6366f1" maxlength="7" style="flex:1;"/>
+                        </div>
+                        <div th:if="${#fields.hasErrors('color')}" class="form-error" th:errors="*{color}"></div>
+                    </div>
+
+                    <div class="flex gap-3 mt-4">
+                        <button type="submit" class="btn btn-primary"
+                                th:text="${editMode} ? 'Update Category' : 'Create Category'">Create</button>
+                        <a href="/categories" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

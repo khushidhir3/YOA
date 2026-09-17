@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Audit Log — Admin — TaskFlow</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}"/>
+</head>
+<body>
+<div class="app-layout">
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <main class="main-content">
+        <div th:replace="~{fragments/alerts :: alerts}"></div>
+
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">Audit Log <span class="admin-portal-badge">Admin</span></h1>
+                <p class="page-subtitle">System-wide activity trail</p>
+            </div>
+        </div>
+
+        <div class="page-body">
+            <form method="get" action="/admin/audit" class="filters-bar">
+                <div class="filter-group">
+                    <label>Filter by Username</label>
+                    <input type="text" name="username" th:value="${usernameFilter}" placeholder="e.g. admin"/>
+                </div>
+                <button type="submit" class="btn btn-secondary" style="align-self:flex-end;">Filter</button>
+                <a href="/admin/audit" class="btn btn-secondary" style="align-self:flex-end;">Reset</a>
+            </form>
+
+            <div class="table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Action</th>
+                            <th>Performed By</th>
+                            <th>Entity</th>
+                            <th>ID</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:if="${logs.empty}">
+                            <td colspan="6" style="text-align:center; padding:40px; color:var(--text-muted);">No audit entries found.</td>
+                        </tr>
+                        <tr th:each="log : ${logs}">
+                            <td class="text-xs text-muted"
+                                th:text="${#temporals.format(log.timestamp, 'dd MMM HH:mm')}"></td>
+                            <td>
+                                <span class="badge"
+                                      th:classappend="${log.action.contains('DELETE') ? ' badge-critical' : (log.action.contains('CREATE') ? ' badge-done' : ' badge-in-progress')}"
+                                      th:text="${log.action}"></span>
+                            </td>
+                            <td>
+                                <span class="text-sm font-bold text-accent" th:text="${log.performedBy}"></span>
+                            </td>
+                            <td class="text-sm text-secondary" th:text="${log.targetEntity}"></td>
+                            <td class="text-sm text-muted" th:text="${log.targetId}"></td>
+                            <td class="text-sm text-secondary" th:text="${log.details}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination" th:if="${totalPages > 1}">
+                <a th:if="${currentPage > 0}"
+                   th:href="@{/admin/audit(page=${currentPage - 1}, username=${usernameFilter})}"
+                   class="page-link">← Prev</a>
+                <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+                    <a th:href="@{/admin/audit(page=${i}, username=${usernameFilter})}"
+                       class="page-link"
+                       th:classappend="${i == currentPage ? ' active' : ''}"
+                       th:text="${i + 1}"></a>
+                </span>
+                <a th:if="${currentPage < totalPages - 1}"
+                   th:href="@{/admin/audit(page=${currentPage + 1}, username=${usernameFilter})}"
+                   class="page-link">Next →</a>
+            </div>
+        </div>
+    </main>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+
+<!-- ===== SIDEBAR FRAGMENT ===== -->
+<aside th:fragment="sidebar" class="sidebar">
+    <div class="sidebar-logo">
+        <div class="logo-icon">✓</div>
+        <div>
+            <div class="logo-text">TaskFlow</div>
+            <div class="logo-sub">
+                <span sec:authorize="hasRole('ADMIN')">Admin Portal</span>
+                <span sec:authorize="hasRole('USER') and !hasRole('ADMIN')">My Workspace</span>
+            </div>
+        </div>
+    </div>
+
+    <nav class="sidebar-nav">
+        <sec:authorize access="isAuthenticated()">
+            <div class="nav-section-label">Workspace</div>
+            <a href="/dashboard" class="nav-item">
+                <span class="nav-icon">⊞</span><span>Dashboard</span>
+            </a>
+            <a href="/tasks" class="nav-item">
+                <span class="nav-icon">☑</span><span>My Tasks</span>
+            </a>
+            <a href="/categories" class="nav-item">
+                <span class="nav-icon">◈</span><span>Categories</span>
+            </a>
+            <a href="/notifications" class="nav-item">
+                <span class="nav-icon">🔔</span><span>Notifications</span>
+                <span id="notif-badge" class="nav-badge" style="display:none;"></span>
+            </a>
+
+            <sec:authorize access="hasRole('ADMIN')">
+                <div class="nav-section-label" style="margin-top:12px;">Admin Portal</div>
+                <a href="/admin/tasks" class="nav-item">
+                    <span class="nav-icon">⊛</span><span>All Tasks</span>
+                    <span class="admin-portal-badge">Admin</span>
+                </a>
+                <a href="/admin/users" class="nav-item">
+                    <span class="nav-icon">👥</span><span>Users</span>
+                    <span class="admin-portal-badge">Admin</span>
+                </a>
+                <a href="/admin/audit" class="nav-item">
+                    <span class="nav-icon">📋</span><span>Audit Log</span>
+                    <span class="admin-portal-badge">Admin</span>
+                </a>
+                <a href="/admin/actuator-dashboard" class="nav-item">
+                    <span class="nav-icon">⚙</span><span>System Health</span>
+                    <span class="admin-portal-badge">Admin</span>
+                </a>
+            </sec:authorize>
+        </sec:authorize>
+    </nav>
+
+    <sec:authorize access="isAuthenticated()">
+        <div class="sidebar-user">
+            <div class="user-avatar"
+                 th:text="${currentUser?.fullName != null ? currentUser.fullName.substring(0,1).toUpperCase() : 'U'}">U</div>
+            <div class="user-info">
+                <div class="user-name" th:text="${currentUser?.fullName ?: 'User'}">User</div>
+                <div class="user-role" sec:authorize="hasRole('ADMIN')">Administrator</div>
+                <div class="user-role" sec:authorize="hasRole('USER') and !hasRole('ADMIN')">Team Member</div>
+            </div>
+            <form th:action="@{/auth/logout}" method="post" style="margin:0;">
+                <button type="submit" class="logout-btn" title="Logout">⇥</button>
+            </form>
+        </div>
+    </sec:authorize>
+</aside>
+
+</body>
+</html>

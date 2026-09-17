@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Users — Admin — TaskFlow</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}"/>
+</head>
+<body>
+<div class="app-layout">
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <main class="main-content">
+        <div th:replace="~{fragments/alerts :: alerts}"></div>
+
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">User Management <span class="admin-portal-badge">Admin</span></h1>
+                <p class="page-subtitle">View and manage all registered users</p>
+            </div>
+        </div>
+
+        <div class="page-body">
+            <div class="table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Joined</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="user : ${users}">
+                            <td>
+                                <div style="display:flex; align-items:center; gap:10px;">
+                                    <div class="user-avatar" style="width:32px; height:32px; font-size:12px;"
+                                         th:text="${user.fullName != null ? user.fullName.substring(0,1).toUpperCase() : user.username.substring(0,1).toUpperCase()}">U</div>
+                                    <div>
+                                        <div class="font-bold text-sm" th:text="${user.fullName ?: user.username}"></div>
+                                        <div class="text-muted text-xs" th:text="'@' + ${user.username}"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-sm" th:text="${user.email}"></td>
+                            <td>
+                                <span th:each="role : ${user.roles}">
+                                    <span th:if="${role == 'ROLE_ADMIN'}"
+                                          style="background:rgba(239,68,68,0.15); color:#ef4444;"
+                                          class="badge">Admin</span>
+                                    <span th:if="${role == 'ROLE_USER'}"
+                                          class="badge badge-in-progress">User</span>
+                                </span>
+                            </td>
+                            <td>
+                                <span th:if="${user.enabled}" class="badge badge-done">Active</span>
+                                <span th:if="${!user.enabled}" class="badge badge-todo">Disabled</span>
+                            </td>
+                            <td class="text-sm text-secondary"
+                                th:text="${user.createdAt != null ? #temporals.format(user.createdAt, 'dd MMM yyyy') : '—'}"></td>
+                            <td>
+                                <div class="flex gap-2">
+                                    <a th:href="@{/admin/users/{id}/edit(id=${user.id})}"
+                                       class="btn btn-sm btn-secondary">Edit</a>
+                                    <form th:if="${user.enabled}"
+                                          th:action="@{/admin/users/{id}/disable(id=${user.id})}" method="post"
+                                          data-confirm="Disable this user?">
+                                        <button type="submit" class="btn btn-sm btn-danger">Disable</button>
+                                    </form>
+                                    <form th:if="${!user.enabled}"
+                                          th:action="@{/admin/users/{id}/enable(id=${user.id})}" method="post">
+                                        <button type="submit" class="btn btn-sm btn-success">Enable</button>
+                                    </form>
+                                    <form th:action="@{/admin/users/{id}/delete(id=${user.id})}" method="post"
+                                          data-confirm="Permanently delete this user and all their data?">
+                                        <button type="submit" class="btn btn-sm btn-danger">Del</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

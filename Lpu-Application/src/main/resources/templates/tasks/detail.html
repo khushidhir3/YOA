@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${task.title + ' — TaskFlow'}">Task Detail</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}"/>
+</head>
+<body>
+<div class="app-layout">
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <main class="main-content">
+        <div th:replace="~{fragments/alerts :: alerts}"></div>
+
+        <div class="page-header">
+            <div>
+                <a href="/tasks" class="btn btn-secondary btn-sm" style="margin-bottom:12px;">← Back to Tasks</a>
+                <h1 class="page-title" th:text="${task.title}">Task Title</h1>
+                <div class="task-meta-chips">
+                    <span th:class="'badge badge-' + ${task.priority.name().toLowerCase()}"
+                          th:text="${task.priority.name()}"></span>
+                    <span th:switch="${task.status.name()}">
+                        <span th:case="'TODO'" class="badge badge-todo">To Do</span>
+                        <span th:case="'IN_PROGRESS'" class="badge badge-in-progress">In Progress</span>
+                        <span th:case="'DONE'" class="badge badge-done">Done</span>
+                    </span>
+                    <span th:if="${task.overdue}" class="badge badge-overdue">⚠ Overdue</span>
+                    <span th:if="${task.categoryName != null}" class="badge"
+                          th:style="'background:' + ${task.categoryColor} + '22; color:' + ${task.categoryColor}"
+                          th:text="${task.categoryName}"></span>
+                    <span th:each="tag : ${task.tags}" class="tag-chip" th:text="${'#'+tag}"></span>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <a th:href="@{/tasks/{id}/edit(id=${task.id})}" class="btn btn-secondary">✏ Edit</a>
+                <form th:action="@{/tasks/{id}/delete(id=${task.id})}" method="post"
+                      data-confirm="Delete this task permanently?">
+                    <button type="submit" class="btn btn-danger">🗑 Delete</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="page-body">
+            <div style="display:grid; grid-template-columns:1fr 320px; gap:24px; align-items:start;">
+                <!-- Left: Details + Comments -->
+                <div>
+                    <!-- Description -->
+                    <div class="card mb-4">
+                        <div class="chart-title mb-3">📄 Description</div>
+                        <p class="task-description"
+                           th:text="${task.description ?: 'No description provided.'}"></p>
+                    </div>
+
+                    <!-- Status Update -->
+                    <div class="card mb-4">
+                        <div class="chart-title mb-3">🔄 Update Status</div>
+                        <div class="flex gap-2 flex-wrap">
+                            <form th:each="s : ${T(com.taskmanager.entity.TaskStatus).values()}"
+                                  th:action="@{/tasks/{id}/status(id=${task.id})}" method="post">
+                                <input type="hidden" name="status" th:value="${s}"/>
+                                <button type="submit"
+                                        th:class="${s == task.status} ? 'btn btn-primary btn-sm' : 'btn btn-secondary btn-sm'"
+                                        th:text="${s.name().replace('_',' ')}"></button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Attachments -->
+                    <div class="card mb-4" th:if="${!task.attachments.empty}">
+                        <div class="chart-title mb-3">📎 Attachments</div>
+                        <div th:each="att : ${task.attachments}"
+                             style="display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid var(--border-color);">
+                            <span style="font-size:24px;">📄</span>
+                            <div>
+                                <div class="font-bold text-sm" th:text="${att.fileName}"></div>
+                                <div class="text-muted text-xs"
+                                     th:text="${att.fileType + ' · ' + (att.fileSize != null ? att.fileSize + ' bytes' : 'Unknown size')}"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Comments -->
+                    <div class="card">
+                        <div class="chart-title mb-3">💬 Comments (<span th:text="${task.comments.size()}">0</span>)</div>
+
+                        <div class="comment-list" th:if="${!task.comments.empty}">
+                            <div th:each="comment : ${task.comments}" class="comment-item">
+                                <div class="comment-avatar"
+                                     th:text="${comment.authorUsername?.substring(0,1)?.toUpperCase() ?: 'U'}">U</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-author" th:text="${comment.authorFullName ?: comment.authorUsername}">Author</span>
+                                        <div class="flex items-center gap-2">
+                                            <span class="comment-time" th:text="${#temporals.format(comment.createdAt, 'dd MMM yyyy HH:mm')}"></span>
+                                            <form th:action="@{/tasks/{tid}/comments/{cid}/delete(tid=${task.id},cid=${comment.id})}"
+                                                  method="post"
+                                                  data-confirm="Delete this comment?">
+                                                <button type="submit" class="btn btn-sm btn-danger" style="padding:2px 8px; font-size:11px;">✕</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                    <p class="comment-content" th:text="${comment.content}"></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div th:if="${task.comments.empty}" class="text-muted text-sm" style="padding:16px 0;">
+                            No comments yet. Be the first to comment!
+                        </div>
+
+                        <!-- Add Comment Form -->
+                        <hr class="section-divider"/>
+                        <div class="comment-form-wrapper">
+                            <div class="comment-avatar"
+                                 th:text="${currentUser?.fullName?.substring(0,1)?.toUpperCase() ?: 'U'}">U</div>
+                            <form th:action="@{/tasks/{id}/comments(id=${task.id})}" method="post" style="flex:1; display:flex; gap:10px; align-items:flex-end;">
+                                <div style="flex:1;">
+                                    <textarea name="content" class="form-control" rows="2"
+                                              placeholder="Add a comment..." required></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-sm">Send</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Metadata Panel -->
+                <div>
+                    <div class="card">
+                        <div class="chart-title mb-3">ℹ Task Info</div>
+                        <div style="display:flex; flex-direction:column; gap:14px;">
+                            <div>
+                                <div class="text-muted text-xs" style="margin-bottom:4px; text-transform:uppercase; letter-spacing:0.5px;">Created By</div>
+                                <div class="text-sm font-bold" th:text="${task.createdByUsername}">—</div>
+                            </div>
+                            <div>
+                                <div class="text-muted text-xs" style="margin-bottom:4px; text-transform:uppercase; letter-spacing:0.5px;">Assigned To</div>
+                                <div class="text-sm" th:text="${task.assignedToFullName ?: task.assignedToUsername ?: 'Unassigned'}">—</div>
+                            </div>
+                            <div>
+                                <div class="text-muted text-xs" style="margin-bottom:4px; text-transform:uppercase; letter-spacing:0.5px;">Due Date</div>
+                                <div class="text-sm" th:text="${task.dueDate ?: 'No due date'}"
+                                     th:class="${task.overdue} ? 'text-sm text-danger font-bold' : 'text-sm'">—</div>
+                            </div>
+                            <div>
+                                <div class="text-muted text-xs" style="margin-bottom:4px; text-transform:uppercase; letter-spacing:0.5px;">Created</div>
+                                <div class="text-sm" th:text="${#temporals.format(task.createdAt, 'dd MMM yyyy')}">—</div>
+                            </div>
+                            <div>
+                                <div class="text-muted text-xs" style="margin-bottom:4px; text-transform:uppercase; letter-spacing:0.5px;">Last Updated</div>
+                                <div class="text-sm" th:text="${#temporals.format(task.updatedAt, 'dd MMM yyyy HH:mm')}">—</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>409 — Conflict — TaskFlow</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}"/>
+</head>
+<body>
+<div class="error-page">
+    <div>
+        <div class="error-code">409</div>
+        <h1 class="error-title">Conflict</h1>
+        <p class="error-desc" th:text="${message ?: 'A conflict occurred with the current state of the resource.'}"></p>
+        <div class="flex gap-3" style="justify-content:center;">
+            <a href="javascript:history.back()" class="btn btn-primary">← Go Back</a>
+            <a href="/dashboard" class="btn btn-secondary">Dashboard</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

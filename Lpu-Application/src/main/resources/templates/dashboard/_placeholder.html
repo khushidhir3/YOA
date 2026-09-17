@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Dashboard — Task Manager</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}"/>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="app-layout" th:replace="~{layout/base :: body(~{::main-content})}">
+<main>
+
+<!-- Page content injected via layout -->
+</main>
+</div>
+</body>
+</html>

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="alerts">
+    <div th:if="${success}" class="alert alert-success" data-auto-dismiss="true"
+         style="margin: 16px 40px 0;">
+        ✓ <span th:text="${success}"></span>
+    </div>
+    <div th:if="${error}" class="alert alert-danger" data-auto-dismiss="true"
+         style="margin: 16px 40px 0;">
+        ✗ <span th:text="${error}"></span>
+    </div>
+    <div th:if="${warning}" class="alert alert-warning" data-auto-dismiss="true"
+         style="margin: 16px 40px 0;">
+        ⚠ <span th:text="${warning}"></span>
+    </div>
+    <div th:if="${commentError}" class="alert alert-warning" data-auto-dismiss="true"
+         style="margin: 16px 40px 0;">
+        <span th:text="${commentError}"></span>
+    </div>
+</div>
+</body>
+</html>

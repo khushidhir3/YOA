@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Dashboard — TaskFlow</title>
+    <meta name="description" content="Your task management dashboard"/>
+    <link rel="stylesheet" th:href="@{/css/main.css}"/>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="app-layout">
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <main class="main-content">
+        <div th:replace="~{fragments/alerts :: alerts}"></div>
+
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">
+                    Good day, <span th:text="${currentUser?.fullName ?: currentUser?.username}">User</span> 👋
+                </h1>
+                <p class="page-subtitle">Here's an overview of your workspace</p>
+            </div>
+            <div class="flex gap-2">
+                <a sec:authorize="hasRole('ADMIN')" href="/admin/tasks/new" class="btn btn-secondary">+ Admin Task</a>
+                <a href="/tasks/new" class="btn btn-primary">+ New Task</a>
+            </div>
+        </div>
+
+        <div class="page-body">
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:rgba(99,102,241,0.15);">☑</div>
+                    <div class="stat-value" th:text="${stats.totalTasks}">0</div>
+                    <div class="stat-label">Total Tasks</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:rgba(100,116,139,0.15);">○</div>
+                    <div class="stat-value" th:text="${stats.todoTasks}" style="-webkit-text-fill-color:#64748b;color:#64748b;">0</div>
+                    <div class="stat-label">To Do</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:rgba(99,102,241,0.15);">◉</div>
+                    <div class="stat-value" th:text="${stats.inProgressTasks}">0</div>
+                    <div class="stat-label">In Progress</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:rgba(16,185,129,0.15);">✓</div>
+                    <div class="stat-value" th:text="${stats.doneTasks}" style="-webkit-text-fill-color:#10b981;color:#10b981;">0</div>
+                    <div class="stat-label">Completed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:rgba(239,68,68,0.15);">⚠</div>
+                    <div class="stat-value" th:text="${stats.overdueTasks}" style="-webkit-text-fill-color:#ef4444;color:#ef4444;">0</div>
+                    <div class="stat-label">Overdue</div>
+                </div>
+                <div class="stat-card" sec:authorize="hasRole('ADMIN')">
+                    <div class="stat-icon" style="background:rgba(245,158,11,0.15);">👥</div>
+                    <div class="stat-value" th:text="${stats.totalUsers}" style="-webkit-text-fill-color:#f59e0b;color:#f59e0b;">0</div>
+                    <div class="stat-label">Total Users</div>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <div class="chart-title">📊 Tasks by Status</div>
+                    <canvas id="statusChart" height="220"></canvas>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-title">🎯 Tasks by Priority</div>
+                    <canvas id="priorityChart" height="220"></canvas>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card">
+                <div class="chart-title mb-3">⚡ Quick Actions</div>
+                <div class="flex flex-wrap gap-3">
+                    <a href="/tasks/new" class="btn btn-primary">+ Create Task</a>
+                    <a href="/tasks?status=IN_PROGRESS" class="btn btn-secondary">▶ In Progress</a>
+                    <a href="/tasks?priority=CRITICAL" class="btn btn-danger">⚠ Critical Tasks</a>
+                    <a href="/categories/new" class="btn btn-secondary">+ Category</a>
+                    <a sec:authorize="hasRole('ADMIN')" href="/admin/users" class="btn btn-secondary">👥 Manage Users</a>
+                    <a sec:authorize="hasRole('ADMIN')" href="/admin/audit" class="btn btn-secondary">📋 Audit Log</a>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script th:src="@{/js/app.js}"></script>
+<script th:inline="javascript">
+    const stats = {
+        todo: /*[[${stats.todoTasks}]]*/ 0,
+        inProgress: /*[[${stats.inProgressTasks}]]*/ 0,
+        done: /*[[${stats.doneTasks}]]*/ 0,
+        low: /*[[${stats.lowPriorityTasks}]]*/ 0,
+        medium: /*[[${stats.mediumPriorityTasks}]]*/ 0,
+        high: /*[[${stats.highPriorityTasks}]]*/ 0,
+        critical: /*[[${stats.criticalPriorityTasks}]]*/ 0
+    };
+    createStatusChart('statusChart', stats.todo, stats.inProgress, stats.done);
+    createPriorityChart('priorityChart', stats.low, stats.medium, stats.high, stats.critical);
+</script>
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Tasks — TaskFlow</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}"/>
+</head>
+<body>
+<div class="app-layout">
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <main class="main-content">
+        <div th:replace="~{fragments/alerts :: alerts}"></div>
+
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">My Tasks</h1>
+                <p class="page-subtitle">Manage and track your assigned tasks</p>
+            </div>
+            <a href="/tasks/new" class="btn btn-primary">+ New Task</a>
+        </div>
+
+        <div class="page-body">
+            <!-- Filters -->
+            <form method="get" action="/tasks" class="filters-bar">
+                <div class="filter-group" style="flex:2; min-width:200px;">
+                    <label>🔍 Search</label>
+                    <input type="text" name="search" th:value="${searchFilter}" placeholder="Search task titles..."/>
+                </div>
+                <div class="filter-group">
+                    <label>Status</label>
+                    <select name="status">
+                        <option value="">All Statuses</option>
+                        <option th:each="s : ${statuses}" th:value="${s}" th:text="${s.name().replace('_',' ')}"
+                                th:selected="${s == statusFilter}"></option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Priority</label>
+                    <select name="priority">
+                        <option value="">All Priorities</option>
+                        <option th:each="p : ${priorities}" th:value="${p}" th:text="${p.name()}"
+                                th:selected="${p == priorityFilter}"></option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-secondary" style="align-self:flex-end;">Filter</button>
+                <a href="/tasks" class="btn btn-secondary" style="align-self:flex-end;">Reset</a>
+            </form>
+
+            <!-- Tasks Table -->
+            <div th:if="${tasks.empty}" class="empty-state">
+                <div class="empty-state-icon">📝</div>
+                <div class="empty-state-title">No tasks found</div>
+                <div class="empty-state-desc">Try changing your filters or create a new task to get started.</div>
+                <a href="/tasks/new" class="btn btn-primary">+ Create First Task</a>
+            </div>
+
+            <div th:if="${!tasks.empty}" class="table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Task</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Category</th>
+                            <th>Due Date</th>
+                            <th>Assigned To</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="task : ${tasks}" th:classappend="${task.overdue} ? 'overdue-row' : ''">
+                            <td>
+                                <a th:href="@{/tasks/{id}(id=${task.id})}" class="task-title-link">
+                                    <span th:text="${task.title}">Task Title</span>
+                                    <div class="task-tags">
+                                        <span th:each="tag : ${task.tags}" class="tag-chip" th:text="${'#'+tag}"></span>
+                                    </div>
+                                </a>
+                            </td>
+                            <td>
+                                <span th:class="'badge badge-' + ${task.priority.name().toLowerCase()}"
+                                      th:text="${task.priority.name()}">MEDIUM</span>
+                            </td>
+                            <td>
+                                <span th:switch="${task.status.name()}">
+                                    <span th:case="'TODO'" class="badge badge-todo">To Do</span>
+                                    <span th:case="'IN_PROGRESS'" class="badge badge-in-progress">In Progress</span>
+                                    <span th:case="'DONE'" class="badge badge-done">Done</span>
+                                </span>
+                                <span th:if="${task.overdue}" class="badge badge-overdue" style="margin-left:4px;">Overdue</span>
+                            </td>
+                            <td>
+                                <span th:if="${task.categoryName != null}"
+                                      style="display:inline-flex; align-items:center; gap:6px;">
+                                    <span style="width:10px;height:10px;border-radius:50%;display:inline-block;"
+                                          th:style="'background:' + ${task.categoryColor} + ';width:10px;height:10px;border-radius:50%;display:inline-block;'"></span>
+                                    <span th:text="${task.categoryName}" class="text-sm"></span>
+                                </span>
+                                <span th:if="${task.categoryName == null}" class="text-muted text-sm">—</span>
+                            </td>
+                            <td>
+                                <span th:if="${task.dueDate != null}"
+                                      th:text="${task.dueDate}"
+                                      th:class="${task.overdue} ? 'text-danger text-sm' : 'text-sm'"></span>
+                                <span th:if="${task.dueDate == null}" class="text-muted text-sm">—</span>
+                            </td>
+                            <td>
+                                <span th:text="${task.assignedToUsername ?: '—'}" class="text-sm text-secondary"></span>
+                            </td>
+                            <td>
+                                <div class="flex gap-2">
+                                    <a th:href="@{/tasks/{id}(id=${task.id})}" class="btn btn-sm btn-secondary">View</a>
+                                    <a th:href="@{/tasks/{id}/edit(id=${task.id})}" class="btn btn-sm btn-secondary">Edit</a>
+                                    <form th:action="@{/tasks/{id}/delete(id=${task.id})}" method="post"
+                                          data-confirm="Delete this task? This cannot be undone.">
+                                        <button type="submit" class="btn btn-sm btn-danger">Del</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>404 — Not Found — TaskFlow</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}"/>
+</head>
+<body>
+<div class="error-page">
+    <div>
+        <div class="error-code">404</div>
+        <h1 class="error-title">Page Not Found</h1>
+        <p class="error-desc" th:text="${message ?: 'The page or resource you\'re looking for doesn\'t exist.'}"></p>
+        <div class="flex gap-3" style="justify-content:center;">
+            <a href="/dashboard" class="btn btn-primary">← Go to Dashboard</a>
+            <a href="javascript:history.back()" class="btn btn-secondary">Go Back</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>
